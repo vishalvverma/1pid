@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Lifecycle Story — ZMP Welcomes You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #0f172a;
+      --ground: #1e293b;
+      --path: #334155;
+      --house-bg: #1e3a5f;
+      --door: #22d3ee;
+      --zmp-glow: #a78bfa;
+      --event: #fbbf24;
+      --segment: #34d399;
+      --campaign: #f472b6;
+      --merge: #c084fc;
+      --gone: #64748b;
+      --text: #e2e8f0;
+      /* Extended palette from docs */
+      --identity: #06b6d4;
+      --enrichment: #14b8a6;
+      --lifecycle: #f97316;
+      --reachability: #0ea5e9;
+      --compliance: #84cc16;
+      --viewed-events: #eab308;
+      --profile-consolidation: #d946ef;
+      --osr: #ec4899;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', 'Outfit', sans-serif;
+      background: var(--sky);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .scene {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: start;
+      padding: 2rem 3rem;
+    }
+    .scene-inner {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1400px;
+      min-height: 75vh;
+      padding-top: 4.5rem;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .scene-inner { grid-template-columns: 1fr; }
+      .scene-right { order: -1; max-height: 280px; }
+    }
+    .scene-left {
+      position: relative;
+      min-height: 400px;
+    }
+    .scene-right {
+      position: sticky;
+      top: 1.5rem;
+    }
+    .arch-panel {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .arch-panel-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--door);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .arch-diagram {
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: rgba(226, 232, 240, 0.85);
+    }
+    .arch-box {
+      display: inline-block;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      margin: 0.2rem 0;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .arch-box.p13n { background: rgba(167, 139, 250, 0.2); border-color: var(--zmp-glow); }
+    .arch-box.rest { background: rgba(34, 211, 238, 0.15); border-color: var(--door); }
+    .arch-box.people { background: rgba(34, 211, 238, 0.2); border-color: var(--door); }
+    .arch-box.thrift { background: rgba(100, 116, 139, 0.3); border-color: var(--gone); }
+    .arch-box.kafka { background: rgba(251, 191, 36, 0.15); border-color: var(--event); }
+    .arch-box.consumer { background: rgba(20, 184, 166, 0.15); border-color: var(--enrichment); }
+    .arch-arrow { color: var(--gone); margin: 0 0.2rem; font-size: 0.65rem; }
+    /* Flow diagram: clear top-to-bottom sequence */
+    .arch-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      font-size: 0.7rem;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.6);
+      border-left: 3px solid var(--door);
+      margin-bottom: 0.25rem;
+    }
+    .flow-step-num {
+      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: var(--door);
+      color: var(--sky);
+      font-weight: 700;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flow-step-content { flex: 1; color: rgba(226, 232, 240, 0.9); }
+    .flow-step-label { font-weight: 600; color: var(--text); }
+    .flow-arrow-down {
+      text-align: center;
+      color: var(--door);
+      font-size: 0.75rem;
+      margin: 0.1rem 0;
+      line-height: 1;
+    }
+    .tech-panel {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(100, 116, 139, 0.4);
+      border-radius: 12px;
+      padding: 1rem;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .tech-panel-title {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--enrichment);
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+    .tech-panel h4 {
+      font-size: 0.8rem;
+      margin: 0.75rem 0 0.35rem;
+      color: var(--text);
+    }
+    .tech-panel p, .tech-panel ul {
+      font-size: 0.72rem;
+      color: rgba(226, 232, 240, 0.75);
+      margin: 0 0 0.5rem;
+      line-height: 1.45;
+    }
+    .tech-panel ul { padding-left: 1rem; }
+    .tech-panel li { margin: 0.2rem 0; }
+    main {
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    /* ========== SCENE 1: Walk in & knock ========== */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 28%;
+      background: var(--ground);
+      border-radius: 20% 20% 0 0;
+    }
+    .path {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 14%;
+      background: linear-gradient(180deg, var(--path) 0%, #475569 100%);
+      border-radius: 0 0 50% 50%;
+      opacity: 0.9;
+    }
+
+    .house {
+      position: absolute;
+      right: 10%;
+      bottom: 16%;
+      width: 280px;
+      height: 200px;
+    }
+    .house-body {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+      background: var(--house-bg);
+      border: 4px solid rgba(34, 211, 238, 0.45);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 40px rgba(34, 211, 238, 0.12);
+    }
+    .house-roof {
+      position: absolute;
+      top: -28px;
+      left: -14px;
+      right: -14px;
+      height: 70px;
+      background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .house-door {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 100px;
+      background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+      border-radius: 8px 8px 0 0;
+      transform-origin: left center;
+      box-shadow: inset 2px 0 12px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--sky);
+      letter-spacing: 0.08em;
+    }
+    .scene[data-scene="1"].active .house-door { animation: doorOpen 0.6s 1.2s ease forwards; }
+    @keyframes doorOpen { to { transform: translateX(-50%) rotateY(-85deg); } }
+
+    .user-figure {
+      position: absolute;
+      bottom: 18%;
+      left: -100px;
+      width: 72px;
+      height: 108px;
+      transition: left 0.1s linear;
+    }
+    .scene[data-scene="1"].active .user-figure { animation: walkIn 2s ease forwards; }
+    @keyframes walkIn {
+      0% { left: -100px; }
+      55% { left: 30%; }
+      100% { left: 30%; }
+    }
+    .user-head {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+      border-radius: 50%;
+      border: 3px solid rgba(251, 191, 36, 0.5);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .user-body {
+      position: absolute;
+      top: 34px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 42px;
+      height: 38px;
+      background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .user-leg {
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 32px;
+      background: #475569;
+      border-radius: 3px;
+      transform-origin: top center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .user-leg.left { left: 18px; }
+    .user-leg.right { right: 18px; }
+    .scene[data-scene="1"].active .user-leg.left { animation: legWalk 0.4s ease-in-out infinite 1.2s; }
+    .scene[data-scene="1"].active .user-leg.right { animation: legWalk 0.4s ease-in-out infinite 1.4s; }
+    @keyframes legWalk {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(12deg); }
+    }
+    .user-arm {
+      position: absolute;
+      top: 38px;
+      right: -8px;
+      width: 10px;
+      height: 28px;
+      background: #475569;
+      border-radius: 3px;
+      transform-origin: top center;
+      opacity: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .scene[data-scene="1"].active .user-arm { animation: knock 0.5s 2.2s ease forwards; opacity: 1; }
+    @keyframes knock {
+      0%, 100% { transform: rotate(-20deg); }
+      50% { transform: rotate(15deg); }
+    }
+    .knock-bubble {
+      position: absolute;
+      top: -12px;
+      right: -36px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      opacity: 0;
+    }
+    .scene[data-scene="1"].active .knock-bubble { animation: bubbleIn 0.4s 2.3s ease forwards; }
+    @keyframes bubbleIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      70% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .scene-label {
+      position: absolute;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(226, 232, 240, 0.6);
+    }
+    .scene-title {
+      position: absolute;
+      top: 2.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 600;
+      text-align: center;
+      max-width: 85%;
+      line-height: 1.35;
+      padding: 0 1rem;
+    }
+
+    /* ========== SCENE 2: Host welcomes — Known vs Anonymous ========== */
+    .host-zone {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 560px;
+      text-align: center;
+      /* Start below title to avoid overlap; title ~2.25rem + ~2 lines + gap */
+      top: 7rem;
+    }
+    .scene[data-scene="2"] .scene-title { margin-bottom: 0; }
+    .scene[data-scene="2"] .scene-label { z-index: 1; }
+    .scene[data-scene="2"] .scene-title { z-index: 1; }
+    .host-house {
+      width: 220px;
+      height: 165px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    .host-house .house-body { height: 110px; border-radius: 10px; }
+    .host-house .house-roof { height: 58px; top: -24px; }
+    .host-house .house-door {
+      width: 62px;
+      height: 78px;
+      font-size: 0.85rem;
+    }
+    .scene[data-scene="2"].active .host-house .house-door { animation: doorOpen 0.5s 0.3s ease forwards; }
+    .welcome-text {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+    .scene[data-scene="2"].active .welcome-text { animation: fadeIn 0.5s 0.6s ease forwards; }
+    .guest-type {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .guest-card {
+      width: 160px;
+      padding: 1.35rem;
+      border-radius: 14px;
+      border: 3px solid transparent;
+      opacity: 0;
+      transition: transform 0.2s, border-color 0.2s;
+      background: rgba(30, 41, 59, 0.6);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .guest-card:hover { transform: scale(1.05); }
+    .scene[data-scene="2"].active .guest-card.anon { animation: fadeIn 0.5s 1s ease forwards; border-color: var(--gone); }
+    .scene[data-scene="2"].active .guest-card.known { animation: fadeIn 0.5s 1.3s ease forwards; border-color: var(--door); }
+    .guest-card .icon { font-size: 2.75rem; margin-bottom: 0.6rem; }
+    .guest-card .label { font-size: 1rem; font-weight: 600; }
+    .guest-card .hint { font-size: 0.8rem; color: rgba(226,232,240,0.65); margin-top: 0.35rem; line-height: 1.3; }
+    .scene[data-scene="2"] .guest-type { margin-bottom: 0.5rem; }
+    .identifiers-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: center;
+      margin-top: 1.25rem;
+      padding-top: 0.5rem;
+      opacity: 0;
+    }
+    .scene[data-scene="2"].active .identifiers-row { animation: fadeIn 0.5s 1.6s ease forwards; }
+    .identifier-chip {
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.2);
+      color: var(--identity);
+      border: 1px solid rgba(6, 182, 212, 0.5);
+    }
+    .known-to-zeta-badge {
+      margin-top: 1rem;
+      padding-top: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(132, 204, 22, 0.2);
+      color: var(--compliance);
+      border: 1px solid rgba(132, 204, 22, 0.5);
+      opacity: 0;
+    }
+    .scene[data-scene="2"].active .known-to-zeta-badge { animation: fadeIn 0.5s 1.9s ease forwards; }
+
+    /* ========== SCENE 3: Events & enrichment splash ========== */
+    .splash-user {
+      position: absolute;
+      left: 50%;
+      bottom: 26%;
+      transform: translateX(-50%);
+      width: 88px;
+      height: 120px;
+    }
+    .splash-user .user-head { width: 44px; height: 44px; left: 50%; margin-left: -22px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .splash-user .user-body { width: 52px; height: 44px; top: 42px; margin-left: -26px; }
+    .splash-user .user-leg { height: 30px; width: 14px; }
+    .splash-user .user-leg.left { left: 12px; }
+    .splash-user .user-leg.right { right: 12px; }
+    .event-badge {
+      position: absolute;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: var(--event);
+      color: var(--sky);
+      opacity: 0;
+      box-shadow: 0 3px 14px rgba(251, 191, 36, 0.45);
+      white-space: nowrap;
+    }
+    /* Row above user: left, center, right */
+    .scene[data-scene="3"].active .event-badge.b1 { animation: splash 0.6s 0.4s ease forwards; top: -52px; left: 50%; margin-left: -42px; }
+    .scene[data-scene="3"].active .event-badge.b2 { animation: splash 0.6s 0.6s ease forwards; top: -48px; left: -155px; }
+    .scene[data-scene="3"].active .event-badge.b3 { animation: splash 0.6s 0.8s ease forwards; top: -48px; right: -155px; left: auto; }
+    /* Row below user: left, center, right */
+    .scene[data-scene="3"].active .event-badge.b4 { animation: splash 0.6s 1s ease forwards; bottom: -42px; left: 50%; margin-left: -48px; }
+    .scene[data-scene="3"].active .event-badge.b5 { animation: splash 0.6s 1.2s ease forwards; bottom: -38px; left: -145px; }
+    .scene[data-scene="3"].active .event-badge.b6 { animation: splash 0.6s 1.4s ease forwards; bottom: -38px; right: -145px; left: auto; }
+    .identity-snapshot-strip {
+      position: absolute;
+      left: 50%;
+      bottom: 8%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+    }
+    .scene[data-scene="3"].active .identity-snapshot-strip { animation: fadeIn 0.5s 1.7s ease forwards; }
+    .signed-up-compliance {
+      position: absolute;
+      left: 2%;
+      top: 20%;
+      padding: 0.4rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(132, 204, 22, 0.15);
+      color: var(--compliance);
+      border: 1px solid rgba(132, 204, 22, 0.4);
+      max-width: 140px;
+      opacity: 0;
+    }
+    .scene[data-scene="3"].active .signed-up-compliance { animation: fadeIn 0.5s 1.6s ease forwards; }
+    .snapshot-tag {
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--identity);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+    .enrichment-sources {
+      position: absolute;
+      left: 50%;
+      top: 18%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+    }
+    .scene[data-scene="3"].active .enrichment-sources { animation: fadeIn 0.5s 1.9s ease forwards; }
+    .enrichment-tag {
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(20, 184, 166, 0.2);
+      color: var(--enrichment);
+      border: 1px solid rgba(20, 184, 166, 0.45);
+    }
+    @keyframes splash {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* ========== SCENE 4: Segments & experiences ========== */
+    .segment-user {
+      position: absolute;
+      left: 50%;
+      bottom: 26%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 116px;
+    }
+    .segment-user .user-head { width: 40px; height: 40px; margin-left: -20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .segment-user .user-body { width: 48px; height: 42px; top: 38px; margin-left: -24px; }
+    .segment-user .user-leg { height: 32px; width: 14px; }
+    .segment-user .user-leg.left { left: 14px; }
+    .segment-user .user-leg.right { right: 14px; }
+    .segment-tag {
+      position: absolute;
+      padding: 0.55rem 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--segment);
+      color: var(--sky);
+      opacity: 0;
+      border: 2px solid rgba(52, 211, 153, 0.5);
+      box-shadow: 0 2px 12px rgba(52, 211, 153, 0.25);
+      white-space: nowrap;
+    }
+    /* Spread segment tags to avoid overlap: Reachable above, t1/t2 wider apart */
+    .scene[data-scene="4"].active .segment-tag.t1 { animation: tagIn 0.5s 0.5s ease forwards; top: -58px; left: -268px; }
+    .scene[data-scene="4"].active .segment-tag.t2 { animation: tagIn 0.5s 0.8s ease forwards; top: -50px; right: -268px; left: auto; }
+    .scene[data-scene="4"].active .segment-tag.t3 { animation: tagIn 0.5s 1.1s ease forwards; bottom: -44px; left: -240px; }
+    .scene[data-scene="4"].active .segment-tag.t4 { animation: tagIn 0.5s 1.4s ease forwards; bottom: -44px; right: -240px; left: auto; }
+    .segment-tag.reachable { background: rgba(14, 165, 233, 0.25); color: var(--reachability); border-color: rgba(14, 165, 233, 0.5); }
+    .scene[data-scene="4"].active .segment-tag.t5 { animation: tagIn 0.5s 1.2s ease forwards; top: -92px; left: 50%; margin-left: -85px; }
+    @keyframes tagIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .segment-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 6%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: rgba(226, 232, 240, 0.88);
+      max-width: 420px;
+      text-align: center;
+      opacity: 0;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .scene[data-scene="4"].active .segment-hint { animation: fadeIn 0.5s 1.8s ease forwards; }
+    .viewed-events-badge {
+      position: absolute;
+      right: 2%;
+      top: 12%;
+      padding: 0.4rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--viewed-events);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      opacity: 0;
+    }
+    .scene[data-scene="4"].active .viewed-events-badge { animation: fadeIn 0.5s 1.5s ease forwards; }
+    .experience-beam {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 6px;
+      height: 0;
+      background: linear-gradient(180deg, var(--zmp-glow), transparent);
+      border-radius: 3px;
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+    .scene[data-scene="4"].active .experience-beam { animation: beamUp 0.8s 1.6s ease forwards; }
+    @keyframes beamUp {
+      0% { height: 0; opacity: 0; }
+      50% { opacity: 0.8; }
+      100% { height: 100px; opacity: 0.6; }
+    }
+
+    /* ========== SCENE 4b: Lifecycle Orchestrator ========== */
+    .lifecycle-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -48%);
+    }
+    .lifecycle-card {
+      padding: 1.25rem;
+      border-radius: 14px;
+      border: 2px solid rgba(249, 115, 22, 0.4);
+      background: rgba(249, 115, 22, 0.08);
+      opacity: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .lifecycle-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(249, 115, 22, 0.2); }
+    .scene[data-scene="4b"].active .lifecycle-card:nth-child(1) { animation: fadeIn 0.5s 0.3s ease forwards; }
+    .scene[data-scene="4b"].active .lifecycle-card:nth-child(2) { animation: fadeIn 0.5s 0.5s ease forwards; }
+    .scene[data-scene="4b"].active .lifecycle-card:nth-child(3) { animation: fadeIn 0.5s 0.7s ease forwards; }
+    .scene[data-scene="4b"].active .lifecycle-card:nth-child(4) { animation: fadeIn 0.5s 0.9s ease forwards; }
+    .lifecycle-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .lifecycle-title { font-size: 1.05rem; font-weight: 700; color: var(--lifecycle); margin-bottom: 0.4rem; }
+    .lifecycle-desc { font-size: 0.8rem; color: rgba(226, 232, 240, 0.75); line-height: 1.4; }
+    .lifecycle-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 12%;
+      transform: translateX(-50%);
+      font-size: 0.82rem;
+      color: rgba(226, 232, 240, 0.5);
+      max-width: 520px;
+      text-align: center;
+      opacity: 0;
+    }
+    .scene[data-scene="4b"].active .lifecycle-hint { animation: fadeIn 0.5s 1.2s ease forwards; }
+
+    /* ========== SCENE 5: Campaigns ========== */
+    .campaign-user {
+      position: absolute;
+      left: 50%;
+      bottom: 26%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 116px;
+    }
+    .campaign-user .user-head { width: 40px; height: 40px; margin-left: -20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .campaign-user .user-body { width: 48px; height: 42px; top: 38px; margin-left: -24px; }
+    .campaign-user .user-leg { height: 32px; width: 14px; }
+    .campaign-user .user-leg.left { left: 14px; }
+    .campaign-user .user-leg.right { right: 14px; }
+    .campaign-item {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      opacity: 0;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+      gap: 0.25rem;
+    }
+    .scene[data-scene="5"].active .campaign-item.c1 { animation: campaignIn 0.5s 0.4s ease forwards; top: -78px; left: -180px; background: #ef4444; }
+    .scene[data-scene="5"].active .campaign-item.c2 { animation: campaignIn 0.5s 0.7s ease forwards; top: -60px; right: -180px; left: auto; background: #3b82f6; }
+    .scene[data-scene="5"].active .campaign-item.c3 { animation: campaignIn 0.5s 1s ease forwards; bottom: -58px; left: -180px; background: #22c55e; }
+    .scene[data-scene="5"].active .campaign-item.c4 { animation: campaignIn 0.5s 1.3s ease forwards; bottom: -58px; right: -180px; left: auto; background: var(--campaign); }
+    .campaign-osr {
+      position: absolute;
+      left: 50%;
+      bottom: 2%;
+      transform: translateX(-50%);
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(236, 72, 153, 0.2);
+      color: var(--osr);
+      border: 1px solid rgba(236, 72, 153, 0.5);
+      opacity: 0;
+      margin-bottom: 0.5rem;
+    }
+    .scene[data-scene="5"].active .campaign-osr { animation: fadeIn 0.5s 1.5s ease forwards; }
+    @keyframes campaignIn {
+      0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .campaign-item .label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      color: rgba(226,232,240,0.95);
+    }
+
+    /* ========== SCENE 6: Merge ========== */
+    .merge-zone {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 900px;
+    }
+    .user-figure-merge {
+      position: absolute;
+      bottom: 24%;
+      width: 72px;
+      height: 108px;
+    }
+    .user-figure-merge .user-head { width: 36px; height: 36px; margin-left: -18px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .user-figure-merge .user-body { width: 42px; height: 38px; top: 34px; margin-left: -21px; }
+    .user-figure-merge .user-leg { height: 32px; width: 12px; }
+    .user-figure-merge .user-leg.left { left: 18px; }
+    .user-figure-merge .user-leg.right { right: 18px; }
+    .merge-user-b .user-head { background: linear-gradient(180deg, #6ee7b7 0%, #34d399 100%); border-color: rgba(52, 211, 153, 0.6); }
+    .merge-user-a {
+      left: 18%;
+      opacity: 0;
+    }
+    .merge-user-b {
+      left: 62%;
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+    @keyframes mergeWalkInA {
+      0% { opacity: 0; left: 5%; }
+      100% { opacity: 1; left: 18%; }
+    }
+    @keyframes mergeWalkInB {
+      0% { opacity: 0; left: 92%; }
+      100% { opacity: 1; left: 62%; }
+    }
+    .merge-plus {
+      position: absolute;
+      left: 50%;
+      bottom: 30%;
+      transform: translate(-50%, 0);
+      font-size: 2.5rem;
+      color: var(--merge);
+      opacity: 0;
+      font-weight: 700;
+    }
+    .scene[data-scene="6"].active .merge-plus { animation: fadeIn 0.4s 1.2s ease forwards; }
+    .merge-result {
+      position: absolute;
+      left: 50%;
+      bottom: 24%;
+      transform: translate(-50%, 0) scale(0);
+      width: 80px;
+      height: 116px;
+      opacity: 0;
+    }
+    .merge-result .user-head { width: 40px; height: 40px; margin-left: -20px; background: linear-gradient(180deg, #c4b5fd 0%, #a78bfa 100%); box-shadow: 0 2px 10px rgba(167, 139, 250, 0.4); }
+    .merge-result .user-body { width: 48px; height: 42px; top: 38px; margin-left: -24px; }
+    .merge-result .user-leg { height: 32px; width: 14px; }
+    .merge-result .user-leg.left { left: 14px; }
+    .merge-result .user-leg.right { right: 14px; }
+    .scene[data-scene="6"].active .merge-result { animation: mergeResult 0.7s 1.6s ease forwards; }
+    @keyframes mergeResult {
+      0% { opacity: 0; transform: translate(-50%, 0) scale(0); }
+      60% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+      100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    }
+    .scene[data-scene="6"].active .merge-user-a { animation: mergeWalkInA 0.8s ease forwards, mergeFadeOutA 0.4s 1.5s ease forwards; }
+    .scene[data-scene="6"].active .merge-user-b { animation: mergeWalkInB 0.8s 0.3s ease forwards, mergeFadeOutB 0.4s 1.5s ease forwards; }
+    @keyframes mergeFadeOutA {
+      to { opacity: 0; transform: scale(0.8); }
+    }
+    @keyframes mergeFadeOutB {
+      to { opacity: 0; transform: translateX(-50%) scale(0.8); }
+    }
+    .merge-type-labels {
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+    }
+    .scene[data-scene="6"].active .merge-type-labels { animation: fadeIn 0.5s 2s ease forwards; }
+    .merge-type {
+      padding: 0.35rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(217, 70, 239, 0.15);
+      color: var(--profile-consolidation);
+      border: 1px solid rgba(217, 70, 239, 0.4);
+    }
+    .merge-type.implicit { background: rgba(14, 165, 233, 0.15); color: var(--reachability); border-color: rgba(14, 165, 233, 0.4); }
+    .merge-type.explicit { background: rgba(196, 132, 252, 0.2); color: var(--merge); border-color: rgba(196, 132, 252, 0.5); }
+
+    /* ========== SCENE 7: Deletion ========== */
+    .deletion-user {
+      position: absolute;
+      left: 50%;
+      bottom: 26%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 116px;
+    }
+    .deletion-user .user-head { width: 40px; height: 40px; margin-left: -20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .deletion-user .user-body { width: 48px; height: 42px; top: 38px; margin-left: -24px; }
+    .deletion-user .user-leg { height: 32px; width: 14px; }
+    .deletion-user .user-leg.left { left: 14px; }
+    .deletion-user .user-leg.right { right: 14px; }
+    .scene[data-scene="7"].active .deletion-user { animation: ageThenGo 3s ease forwards; }
+    @keyframes ageThenGo {
+      0% { opacity: 1; filter: brightness(1); }
+      30% { opacity: 1; filter: brightness(0.7) saturate(0.5); }
+      50% { opacity: 1; filter: brightness(0.6) saturate(0.4); }
+      100% { opacity: 0; filter: brightness(0.3); transform: translateX(-50%) scale(0.5); }
+    }
+    .deletion-events {
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--gone);
+      opacity: 0;
+      max-width: 90%;
+    }
+    .scene[data-scene="7"].active .deletion-events { animation: fadeIn 0.6s 2s ease forwards; }
+    .deletion-events div { margin: 0.4rem 0; line-height: 1.4; }
+    .deletion-events .compliance { color: var(--compliance); font-size: 0.85rem; margin-top: 0.6rem; }
+    .deletion-events .muted { color: rgba(226, 232, 240, 0.45); font-size: 0.8rem; }
+
+    .nav-dots {
+      position: fixed;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      z-index: 100;
+    }
+    .nav-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(226, 232, 240, 0.3);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-dot:hover { background: rgba(226, 232, 240, 0.6); transform: scale(1.25); }
+    .nav-dot.active { background: var(--door); box-shadow: 0 0 14px var(--door); }
+
+    .story-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: rgba(226, 232, 240, 0.12);
+      z-index: 101;
+    }
+    .story-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--door), var(--enrichment), var(--lifecycle), var(--zmp-glow), var(--merge));
+      transition: width 0.35s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="story-progress"><div class="story-progress-bar" id="storyProgress"></div></div>
+  <nav class="nav-dots" aria-label="Scenes">
+    <a href="#s1" class="nav-dot active" title="Walk in"></a>
+    <a href="#s2" class="nav-dot" title="Welcome"></a>
+    <a href="#s3" class="nav-dot" title="Events"></a>
+    <a href="#s4" class="nav-dot" title="Segments"></a>
+    <a href="#s4b" class="nav-dot" title="Lifecycle"></a>
+    <a href="#s5" class="nav-dot" title="Campaigns"></a>
+    <a href="#s6" class="nav-dot" title="Merge"></a>
+    <a href="#s7" class="nav-dot" title="Deletion"></a>
+  </nav>
+
+  <main>
+    <!-- SCENE 1: User walks in and knocks -->
+    <section class="scene" id="s1" data-scene="1">
+      <div class="scene-inner">
+        <div class="scene-left">
+          <span class="scene-label">Scene 1</span>
+          <h2 class="scene-title">A visitor walks up and knocks at the door</h2>
+          <div class="ground"></div>
+          <div class="path"></div>
+          <div class="house">
+            <div class="house-roof"></div>
+            <div class="house-body"></div>
+            <div class="house-door">ZMP</div>
+          </div>
+          <div class="user-figure">
+            <div class="user-head"></div>
+            <div class="user-body"></div>
+            <div class="user-leg left"></div>
+            <div class="user-leg right"></div>
+            <div class="user-arm"></div>
+            <span class="knock-bubble">tap tap</span>
+          </div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: User knocks at ZMP door</div>
+            <div class="arch-flow">
+              <div class="flow-step">
+                <span class="flow-step-num">1</span>
+                <div class="flow-step-content"><span class="flow-step-label">Visitor</span> — P13N or external system sends request (identifiers: email, user_id, etc.)</div>
+              </div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step">
+                <span class="flow-step-num">2</span>
+                <div class="flow-step-content"><span class="flow-step-label">Door</span> — REST API (p13n) or REST API (external) receives the request</div>
+              </div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step">
+                <span class="flow-step-num">3</span>
+                <div class="flow-step-content"><span class="flow-step-label">People Service</span> — request handed to internal layer</div>
+              </div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step">
+                <span class="flow-step-num">4</span>
+                <div class="flow-step-content"><span class="flow-step-label">Thrift API (internal)</span> — resolves identity, reads/writes Aerospike, publishes to Kafka</div>
+              </div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step">
+                <span class="flow-step-num">5</span>
+                <div class="flow-step-content"><span class="flow-step-label">Downstream</span> — identity_events on Kafka → people-consumers (ES, Snowflake, Zync, etc.)</div>
+              </div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Technical — How it links</div>
+            <p><strong>Visitor = request.</strong> The "visitor" in the animation is any system (e.g. P13N or an external app) that sends a request carrying identifiers (email, user_id, unique_client_id). That request is the "knock."</p>
+            <p><strong>The door = REST or Thrift.</strong> REST API (p13n) is used by personalization; REST API (external) is used by other clients. Both paths lead into People Service; internally, Thrift API is the common layer that does the work.</p>
+            <p><strong>Thrift does the work.</strong> It resolves identity (match or create), updates the primary store (Aerospike), and publishes an <strong>identity_event</strong> (e.g. NEW_IDENTITY or UPDATE_IDENTITY) to Kafka. Consumers (people-consumer-elasticsearch, people-consumer-snowflake, people-consumer-zync, etc.) subscribe to identity_events and keep their systems in sync.</p>
+            <p><strong>End-to-end:</strong> Request → REST/Thrift door → People Service (Thrift) → Aerospike + identity_events → consumers update ES, Snowflake, Zync, etc.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 2: Host opens gate — Known vs Anonymous -->
+    <section class="scene" id="s2" data-scene="2">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 2</span>
+        <h2 class="scene-title">ZMP opens the gate and welcomes them</h2>
+        <div class="host-zone">
+          <div class="host-house house">
+            <div class="house-body"></div>
+            <div class="house-door">ZMP</div>
+          </div>
+          <p class="welcome-text">Do we know you?</p>
+          <div class="guest-type">
+            <div class="guest-card anon">
+              <div class="icon">👻</div>
+              <div class="label">Anonymous</div>
+              <div class="hint">New profile created</div>
+            </div>
+            <div class="guest-card known">
+              <div class="icon">🪪</div>
+              <div class="label">Known</div>
+              <div class="hint">Email / user_id matched</div>
+            </div>
+          </div>
+          <p class="welcome-text" style="margin-top: 1.25rem; font-size: 0.95rem; font-weight: 500;">People Service assigns identifiers</p>
+          <div class="identifiers-row">
+            <span class="identifier-chip">BSIN</span>
+            <span class="identifier-chip">email</span>
+            <span class="identifier-chip">user_id</span>
+            <span class="identifier-chip">unique_client_id</span>
+          </div>
+          <div class="known-to-zeta-badge">known_to_zeta ✓</div>
+        </div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Identify / resolve</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">Request</span> — identifiers (email, user_id, UCLID) at the door</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">People Service</span> — identify/resolve: match existing or create new</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">Outcome</span> — Anonymous = new profile; Known = matched profile (BSIN, a2b, e2b, uci)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">4</span><div class="flow-step-content"><span class="flow-step-label">identity_events</span> (Kafka) → people-consumers set known_to_zeta, reachable_channels, etc.</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Technical — People-consumers</div>
+            <p>People-consumers read <strong>identity_events</strong> and update downstream: DC user traits (known_to_zeta, reachable_channels), GeoCode, Elasticsearch, Snowflake, Zync. Each consumer enriches then writes back via People APIs / bulk_store_person.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 3: Events & enrichment splash -->
+    <section class="scene" id="s3" data-scene="3">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 3</span>
+        <h2 class="scene-title">Events and enrichment splash in</h2>
+        <div class="ground"></div>
+        <div class="path"></div>
+        <div class="splash-user user-figure">
+          <div class="user-head"></div>
+          <div class="user-body"></div>
+          <div class="user-leg left"></div>
+          <div class="user-leg right"></div>
+          <span class="event-badge b1">viewed</span>
+          <span class="event-badge b2">signed_up</span>
+          <span class="event-badge b3">clicked</span>
+          <span class="event-badge b4">purchased</span>
+          <span class="event-badge b5">enrichment</span>
+          <span class="event-badge b6">traits</span>
+        </div>
+        <div class="signed-up-compliance">signed_up → status: new (compliance)</div>
+        <div class="enrichment-sources">
+          <span class="enrichment-tag">Datacloud</span>
+          <span class="enrichment-tag">GeoCode</span>
+          <span class="enrichment-tag">Email MD5</span>
+          <span class="enrichment-tag">identity_events</span>
+        </div>
+        <div class="identity-snapshot-strip">
+          <span class="snapshot-tag">known_to_zeta</span>
+          <span class="snapshot-tag">isIdentified</span>
+          <span class="snapshot-tag">on viewed events</span>
+        </div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Events & enrichment</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">events_processed</span> (Kafka) — raw behavioral events (viewed, clicked, purchase, etc.)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">Event consumers</span> — EcommerceSink, IPUserAgent, PeopleLastActivity, ZetaKnownStatus</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">Person record</span> — last_*, geo, known_to_zeta written to profile (Aerospike)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">4</span><div class="flow-step-content"><span class="flow-step-label">Segments</span> — use these attributes without scanning raw events</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Event consumers (events_processed)</div>
+            <h4>EcommerceSink</h4>
+            <p>Adds last_purchase_time, last_purchase_amount, last_cart_items from ecommerce events.</p>
+            <h4>IPUserAgentSink</h4>
+            <p>Adds geo (last_country, last_ip) and device from viewed events.</p>
+            <h4>PeopleLastActivity</h4>
+            <p>Adds last_viewed_at, last_email_open_at, last_click_at, last_activity_at.</p>
+            <h4>ZetaKnownStatusSink</h4>
+            <p>Sets known_to_zeta on person (p13n identify, Zync, DC traits).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4: Segments & experiences -->
+    <section class="scene" id="s4" data-scene="4">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 4</span>
+        <h2 class="scene-title">They enter segments and experiences trigger</h2>
+        <div class="ground"></div>
+        <div class="path"></div>
+        <div class="segment-user user-figure">
+          <div class="user-head"></div>
+          <div class="user-body"></div>
+          <div class="user-leg left"></div>
+          <div class="user-leg right"></div>
+          <span class="segment-tag t5 reachable">Reachable (email / push)</span>
+          <span class="segment-tag t1">Shops on Sundays</span>
+          <span class="segment-tag t2">Loves McDonald's</span>
+          <span class="segment-tag t3">High LTV</span>
+          <span class="segment-tag t4">Onboarding flow</span>
+          <div class="experience-beam"></div>
+        </div>
+        <div class="viewed-events-badge">Viewed events → Customer Journey</div>
+        <p class="segment-hint" id="seg-hint-s4">Segments use properties + events. e.g. “Has signed_up, not purchased in 7 days”</p>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Segments & Snowflake</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">user_props</span> (Snowflake) — "who": one row per user, CDC from Aerospike</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">events</span> (Snowflake) — "what happened": behavioral history</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">Segmentation</span> — joins user_props + events; BI, datashare, cleanrooms</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Snowflake usage</div>
+            <p><strong>user_props</strong>: one row per user; segmentation at scale, BI, datashare. Populated via CDC from Aerospike (snowflake-etl-user-props-worker, identity-s3).</p>
+            <p><strong>events</strong>: behavioral history; funnels, advanced segments, ML features. events-consumers-s3-snowflake pushes to DW; datashare_loader for exports.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4b: Lifecycle Orchestrator -->
+    <section class="scene" id="s4b" data-scene="4b">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 4b</span>
+        <h2 class="scene-title">Lifecycle Orchestrator — experiences that trigger automatically</h2>
+        <div class="lifecycle-cards">
+          <div class="lifecycle-card">
+            <div class="lifecycle-icon">🔄</div>
+            <div class="lifecycle-title">Onboarding</div>
+            <div class="lifecycle-desc">When user signs up → Welcome, Product walkthrough, First-order incentive</div>
+          </div>
+          <div class="lifecycle-card">
+            <div class="lifecycle-icon">🎂</div>
+            <div class="lifecycle-title">Birthday</div>
+            <div class="lifecycle-desc">3-day lead + same day + follow-up. Uses profile.dob</div>
+          </div>
+          <div class="lifecycle-card">
+            <div class="lifecycle-icon">🏆</div>
+            <div class="lifecycle-title">Milestone</div>
+            <div class="lifecycle-desc">30 days since signup, Anniversary. Loyalty points, thank-you emails</div>
+          </div>
+          <div class="lifecycle-card">
+            <div class="lifecycle-icon">💤</div>
+            <div class="lifecycle-title">Reactivation</div>
+            <div class="lifecycle-desc">Inactive 45 days → Reminder, Personal note, Incentive offer</div>
+          </div>
+        </div>
+        <p class="lifecycle-hint">Entry = events (e.g. event.signup) + segments. Users move through steps with delays, branching, exits.</p>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Lifecycle & experiences</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">Entry</span> — user in segment + event (e.g. signup) fires</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">Lifecycle Orchestrator</span> — runs flow (Onboarding, Birthday, Reactivation, etc.)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">Steps</span> — delays, branching, exits; uses user_props (e.g. profile.dob)</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Technical</div>
+            <p>Lifecycle flows use profile attributes (from event consumers + people-consumers). Entry/exit based on last_activity_at, segments, and event history.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 5: Campaigns -->
+    <section class="scene" id="s5" data-scene="5">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 5</span>
+        <h2 class="scene-title">Campaigns reach them</h2>
+        <div class="ground"></div>
+        <div class="path"></div>
+        <div class="campaign-user user-figure">
+          <div class="user-head"></div>
+          <div class="user-body"></div>
+          <div class="user-leg left"></div>
+          <div class="user-leg right"></div>
+          <div class="campaign-item c1">📧<span class="label">Email</span></div>
+          <div class="campaign-item c2">🔔<span class="label">Push</span></div>
+          <div class="campaign-item c3">📱<span class="label">In-app</span></div>
+          <div class="campaign-item c4">✉️<span class="label">Alerts</span></div>
+        </div>
+        <div class="campaign-osr">On-site recommendations &amp; Website Personalization (OSR)</div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Reachability & activation</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">Profile</span> — known_to_zeta, reachable_channels (from people-consumers), segments</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">Activation</span> — Email, Push, In-app, Alerts, OSR use segment membership + profile</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Technical</div>
+            <p>ChannelInfoHandler (people-consumer-dc-user-traits) updates known_to_zeta and reachable_channels. Campaigns and OSR use segment membership and profile attributes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 6: Merge -->
+    <section class="scene" id="s6" data-scene="6">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 6</span>
+        <h2 class="scene-title">Another visitor turns out to be the same person — we merge</h2>
+        <div class="ground"></div>
+        <div class="path"></div>
+        <div class="merge-zone">
+          <div class="user-figure-merge merge-user-a">
+            <div class="user-head"></div>
+            <div class="user-body"></div>
+            <div class="user-leg left"></div>
+            <div class="user-leg right"></div>
+          </div>
+          <div class="merge-plus">+</div>
+          <div class="user-figure-merge merge-user-b">
+            <div class="user-head"></div>
+            <div class="user-body"></div>
+            <div class="user-leg left"></div>
+            <div class="user-leg right"></div>
+          </div>
+          <div class="merge-result user-figure">
+            <div class="user-head"></div>
+            <div class="user-body"></div>
+            <div class="user-leg left"></div>
+            <div class="user-leg right"></div>
+          </div>
+        </div>
+        <div class="merge-type-labels">
+          <span class="merge-type implicit">Implicit (same email / user_id)</span>
+          <span class="merge-type explicit">Explicit (API / CS app)</span>
+          <span class="merge-type">profile_consolidation event</span>
+        </div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Merge</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">Trigger</span> — same person (implicit or explicit merge API); profile_consolidation event</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">identity_events</span> (MERGE) → People Service writes single profile (e.g. one bulk_store_person)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">people-consumers</span> — ES, Snowflake, Zync, etc. sync to merged profile</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">People-consumers & merge</div>
+            <p>Merge publishes identity_event MERGE. people-consumer-snowflake, -elasticsearch, -zeta-known, etc. update downstream. Write-amplification doc: unified consumer can do one bulk_store_person for all enrichments.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 7: Deletion -->
+    <section class="scene" id="s7" data-scene="7">
+      <div class="scene-inner">
+        <div class="scene-left">
+        <span class="scene-label">Scene 7</span>
+        <h2 class="scene-title">They leave — deletion and cleanup</h2>
+        <div class="ground"></div>
+        <div class="path"></div>
+        <div class="deletion-user user-figure">
+          <div class="user-head"></div>
+          <div class="user-body"></div>
+          <div class="user-leg left"></div>
+          <div class="user-leg right"></div>
+        </div>
+        <div class="deletion-events">
+          <div>delete_identity → profile removed / anonymized</div>
+          <div>identity_events (delete_identity) → consumers bulk delete</div>
+          <div>No longer in segments, experiences, or campaigns</div>
+          <div class="muted">Events retained for analytics but de-identified (per policy)</div>
+          <div class="compliance">Opt-out / GDPR “right to be forgotten”</div>
+        </div>
+        </div>
+        <div class="scene-right">
+          <div class="arch-panel">
+            <div class="arch-panel-title">1PID — Flow: Deletion & cleanup</div>
+            <div class="arch-flow">
+              <div class="flow-step"><span class="flow-step-num">1</span><div class="flow-step-content"><span class="flow-step-label">delete_identity</span> → People Service (profile removed / anonymized)</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">2</span><div class="flow-step-content"><span class="flow-step-label">identity_events</span> (DELETE) → people-consumers bulk delete or anonymize</div></div>
+              <div class="flow-arrow-down">↓</div>
+              <div class="flow-step"><span class="flow-step-num">3</span><div class="flow-step-content"><span class="flow-step-label">Downstream</span> — Snowflake, ES, Zync, etc.; user_props row removed; events de-identified per policy (GDPR).</div></div>
+            </div>
+          </div>
+          <div class="tech-panel">
+            <div class="tech-panel-title">Cleanrooms & data governance</div>
+            <p>Snowflake <strong>user_props</strong> and <strong>events</strong> feed datashare (snowflake-etl-datashare). Cleanrooms: privacy-safe share; overlap, attribution, model training with pseudonymous IDs. Deletion flows ensure removed users are excluded from shares.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const scenes = document.querySelectorAll('.scene');
+    const dots = document.querySelectorAll('.nav-dot');
+
+    function setActiveScene() {
+      const scrollMid = main.scrollTop + main.clientHeight / 2;
+      let active = 0;
+      scenes.forEach((s, i) => {
+        const top = s.offsetTop;
+        const bottom = top + s.offsetHeight;
+        if (scrollMid >= top && scrollMid < bottom) active = i;
+      });
+      scenes.forEach((s, i) => s.classList.toggle('active', i === active));
+      dots.forEach((d, i) => d.classList.toggle('active', i === active));
+    }
+
+    const main = document.querySelector('main');
+    const progressBar = document.getElementById('storyProgress');
+    function updateProgress() {
+      if (!main || !progressBar) return;
+      const pct = main.scrollHeight > main.clientHeight
+        ? (main.scrollTop / (main.scrollHeight - main.clientHeight)) * 100
+        : 0;
+      progressBar.style.width = pct + '%';
+    }
+    main.addEventListener('scroll', () => { setActiveScene(); updateProgress(); });
+    window.addEventListener('resize', () => { setActiveScene(); updateProgress(); });
+    setActiveScene();
+    updateProgress();
+
+    dots.forEach((d, i) => {
+      d.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(d.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
